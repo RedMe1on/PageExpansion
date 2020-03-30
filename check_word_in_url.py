@@ -16,7 +16,9 @@ def get_end_usluga_url(url: str) -> str:
 usluga_name = 'Замена термостата'
 usluga_url = '/sistema-ohlazhdeniya/termostat-zamena'
 
+columns_list = ['Марка', 'Модель', 'Услуга', 'Регион', 'URL']
 data_read = pd.read_csv('marka_model.csv', encoding='utf-8-sig', sep=';')
+data_parent_usluga = pd.DataFrame(columns=columns_list)  # для родительских услуг, которые еще не созданы
 # добавляем столбец с услугой к данным
 data_read['Услуга'] = usluga_name
 db_all_page = pd.read_csv('all_export_20200225-095421.csv', encoding='cp1251', sep=';')
@@ -60,10 +62,13 @@ if top_usluga_name:
             # print(url_change)
         else:
             print(f'Не найдена услуга {top_usluga_name} для \n{data}')
+            data_parent_usluga = data_parent_usluga.append({'Марка': data['Марка'], 'Модель': data['Модель'], 'Услуга': top_usluga_name,
+                                       'URL': get_relative_url(data['URL']+top_usluga_url)}, ignore_index=True)
             data_read.loc[idx, ['URL']] = get_relative_url(data.URL + usluga_url)
+            print(data_read.loc[idx, ['URL']])
 
 print(data_read['URL'])
 data_read['Регион'] = ''
-data_read = data_read[['Марка', 'Модель', 'Услуга', 'Регион', 'URL']]
+data_read = data_read[columns_list]
 data_read.to_csv('file_import_with_chek_for_top_usluga.csv', sep=";", encoding="utf-8-sig")
-
+data_parent_usluga.to_csv('_parent_service.csv', sep=";", encoding="utf-8-sig")
