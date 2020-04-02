@@ -13,8 +13,8 @@ def get_end_usluga_url(url: str) -> str:
     return url[url.rfind('/'):]
 
 
-usluga_name = 'Замена термостата'
-usluga_url = '/sistema-ohlazhdeniya/termostat-zamena'
+usluga_name = 'Ремонт рулевой рейки'
+usluga_url = '/remont-rulevogo-upravleniya/rulevaya-reyka'
 
 columns_list = ['Марка', 'Модель', 'Услуга', 'Регион', 'URL']
 data_read = pd.read_csv('marka_model.csv', encoding='utf-8-sig', sep=';')
@@ -22,7 +22,6 @@ data_parent_usluga = pd.DataFrame(columns=columns_list)  # для родител
 # добавляем столбец с услугой к данным
 data_read['Услуга'] = usluga_name
 db_all_page = pd.read_csv('all_export_20200225-095421.csv', encoding='cp1251', sep=';')
-print(db_all_page['Основной текст'])
 db_all_page = db_all_page.iloc[:, :6]
 
 # находим родительский раздел, в котором лежит услуга
@@ -59,7 +58,6 @@ if top_usluga_name:
             except ValueError:
                 print(url_change)
                 print(url_change.item())
-            # print(url_change)
         else:
             print(f'Не найдена услуга {top_usluga_name} для \n{data}')
             data_parent_usluga = data_parent_usluga.append({'Марка': data['Марка'], 'Модель': data['Модель'], 'Услуга': top_usluga_name,
