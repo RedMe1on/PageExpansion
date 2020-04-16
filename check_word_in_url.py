@@ -13,15 +13,15 @@ def get_end_usluga_url(url: str) -> str:
     return url[url.rfind('/'):]
 
 
-usluga_name = 'Ремонт рулевой рейки'
-usluga_url = '/remont-rulevogo-upravleniya/rulevaya-reyka'
+usluga_name = 'Замена стартера'
+usluga_url = '/elektrooborudovanie/starter-zamena'
 
 columns_list = ['Марка', 'Модель', 'Услуга', 'Регион', 'URL']
 data_read = pd.read_csv('marka_model.csv', encoding='utf-8-sig', sep=';')
 data_parent_usluga = pd.DataFrame(columns=columns_list)  # для родительских услуг, которые еще не созданы
 # добавляем столбец с услугой к данным
 data_read['Услуга'] = usluga_name
-db_all_page = pd.read_csv('all_export_20200225-095421.csv', encoding='cp1251', sep=';')
+db_all_page = pd.read_csv('all.csv', encoding='cp1251', sep=';')
 db_all_page = db_all_page.iloc[:, :6]
 
 # находим родительский раздел, в котором лежит услуга
@@ -29,7 +29,7 @@ top_usluga_url = get_top_usluga_url(usluga_url)
 
 # ищем название родительской услуги
 top_usluga_name = False
-data_filter_url = db_all_page[db_all_page['_URL_'].str.endswith(f'{top_usluga_url}')]
+data_filter_url = db_all_page[db_all_page['_URL_'].str.endswith(f'{top_usluga_url}', na=False)]
 if not data_filter_url.empty:
     top_usluga_name = data_filter_url['Услуга'].reset_index(drop=True)[0]
 else:
@@ -56,8 +56,7 @@ if top_usluga_name:
             try:
                 data_read.loc[idx, ['URL']] = url_change.item()
             except ValueError:
-                print(url_change)
-                print(url_change.item())
+                print('Больше одной страницы: \n', data_filter_model_url._URL_)
         else:
             print(f'Не найдена услуга {top_usluga_name} для \n{data}')
             data_parent_usluga = data_parent_usluga.append({'Марка': data['Марка'], 'Модель': data['Модель'], 'Услуга': top_usluga_name,
